@@ -1,0 +1,54 @@
+name: Build iOS Sideload IPA
+
+on:
+  workflow_dispatch: # Memungkinkan memicu build kapan saja secara manual dari tab Actions di GitHub
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build-ipa:
+    name: Build GeoTrace Sideload IPA
+    runs-on: macos-14 # macOS 14 Sonoma (Apple Silicon) dengan Xcode lengkap bawaan
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: 📋 Periksa Environment & Doctor
+        run: flutter doctor -v
+
+      - name: 📦 Konfigurasi iOS & Install Pods
+        run: |
+          flutter create . --platforms=ios
+          flutter pub get
+          cd ios
+          pod install --repo-update
+          cd ..
+
+      - name: 🔨 Compile iOS Release (No Codesign)
+        run: |
+          flutter build ios --release --no-codesign
+
+      - name: 🎁 Kemas Menjadi Sideloadable IPA (Payload)
+        run: |
+          mkdir -p build/sideload/Payload
+          cp -R build/ios/iphoneos/Runner.app build/sideload/Payload/
+          cd build/sideload
+          zip -qry GeoTrace.ipa Payload
+          cd ../..
+          echo "Hasil build IPA:"
+          ls -lh build/sideload/GeoTrace.ipa
+
+      - name: 🚀 Upload File IPA ke GitHub Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: GeoTrace-iOS-IPA
+          path: build/sideload/GeoTrace.ipa
+          retention-days: 14
