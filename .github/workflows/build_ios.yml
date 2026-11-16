@@ -10,10 +10,14 @@ on:
 jobs:
   build-ipa:
     name: Build GeoTrace Sideload IPA
-    runs-on: macos-14 # macOS 14 Sonoma (Apple Silicon) dengan Xcode lengkap bawaan
+    runs-on: macos-13 # Runner macOS universal yang didukung di semua akun GitHub (bebas limit arm64)
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
+
+      - name: 💎 Install / Update CocoaPods
+        run: |
+          sudo gem install cocoapods
 
       - name: 🐦 Setup Flutter
         uses: subosito/flutter-action@v2
