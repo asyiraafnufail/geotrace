@@ -31,7 +31,6 @@ jobs:
 
       - name: 📦 Konfigurasi iOS & Install Pods
         run: |
-          flutter create . --platforms=ios
           flutter pub get
           cd ios
           pod install --repo-update
