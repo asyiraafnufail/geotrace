@@ -10,14 +10,15 @@ on:
 jobs:
   build-ipa:
     name: Build GeoTrace Sideload IPA
-    runs-on: macos-13 # Runner macOS universal yang didukung di semua akun GitHub (bebas limit arm64)
+    runs-on: macos-latest # Menggunakan runner macOS aktif terbaru resmi GitHub (langsung diproses tanpa antre lama)
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 💎 Install / Update CocoaPods
+      - name: 💎 Verify CocoaPods
         run: |
-          sudo gem install cocoapods
+          which pod || sudo gem install cocoapods
+          pod --version
 
       - name: 🐦 Setup Flutter
         uses: subosito/flutter-action@v2
