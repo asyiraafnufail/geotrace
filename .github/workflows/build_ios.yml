@@ -33,7 +33,9 @@ jobs:
         run: |
           flutter pub get
           cd ios
-          pod install --repo-update
+          rm -rf Pods Podfile.lock
+          pod repo update
+          pod install
           cd ..
 
       - name: 🔨 Compile iOS Release (No Codesign)
