@@ -10,15 +10,10 @@ on:
 jobs:
   build-ipa:
     name: Build GeoTrace Sideload IPA
-    runs-on: macos-latest # Menggunakan runner macOS aktif terbaru resmi GitHub (langsung diproses tanpa antre lama)
+    runs-on: macos-latest
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
-
-      - name: 💎 Verify CocoaPods
-        run: |
-          which pod || sudo gem install cocoapods
-          pod --version
 
       - name: 🐦 Setup Flutter
         uses: subosito/flutter-action@v2
@@ -26,21 +21,14 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: 📋 Periksa Environment & Doctor
-        run: flutter doctor -v
+      - name: 📥 Precache iOS Engine Artifacts
+        run: flutter precache --ios
 
-      - name: 📦 Konfigurasi iOS & Install Pods
-        run: |
-          flutter pub get
-          cd ios
-          rm -rf Pods Podfile.lock
-          pod repo update
-          pod install
-          cd ..
+      - name: 📦 Get Flutter Dependencies
+        run: flutter pub get
 
-      - name: 🔨 Compile iOS Release (No Codesign)
-        run: |
-          flutter build ios --release --no-codesign
+      - name: 🔨 Compile iOS Release (Flutter Auto-manages Pods & Codesign)
+        run: flutter build ios --release --no-codesign
 
       - name: 🎁 Kemas Menjadi Sideloadable IPA (Payload)
         run: |
